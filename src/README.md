@@ -6,6 +6,8 @@ A super simple FastAPI application that allows students to view and sign up for 
 
 - View all available extracurricular activities
 - Sign up for activities
+- View current school announcements
+- Manage dated announcements while signed in as a teacher
 
 ## Getting Started
 
@@ -31,6 +33,16 @@ A super simple FastAPI application that allows students to view and sign up for 
 | ------ | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
 | GET    | `/activities`                                                     | Get all activities with their details and current participant count |
 | POST   | `/activities/{activity_name}/signup?email=student@mergington.edu` | Sign up for an activity                                             |
+| GET    | `/announcements`                                                  | Get announcements active on the current date                        |
+| POST   | `/announcements`                                                  | Create an announcement (authentication required)                    |
+| PUT    | `/announcements/{id}`                                             | Modify an announcement (authentication required)                    |
+| DELETE | `/announcements/{id}`                                             | Delete an announcement (authentication required)                    |
+
+Authenticated announcement requests use the `Authorization: Bearer <session_token>`
+header returned by `/auth/login`. An authenticated `GET /announcements` returns all
+announcements, including scheduled and expired records. Announcement request bodies
+contain a `message`, optional `start_date`, and required `expiration_date`; dates use
+the `YYYY-MM-DD` format.
 
 ## Data Model
 
@@ -43,8 +55,10 @@ The application uses a simple data model with meaningful identifiers:
    - Maximum number of participants allowed
    - List of student emails who are signed up
 
-2. **Students** - Uses email as identifier:
-   - Name
-   - Grade level
+2. **Announcements** - Uses a database-generated identifier:
 
-All data is stored in memory, which means data will be reset when the server restarts.
+   - Message
+   - Optional start date
+   - Required expiration date
+
+All data is stored in MongoDB.
